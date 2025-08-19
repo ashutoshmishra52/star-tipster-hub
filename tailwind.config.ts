@@ -52,6 +52,25 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Sports betting theme colors
+				gold: {
+					primary: 'hsl(var(--gold-primary))',
+					secondary: 'hsl(var(--gold-secondary))'
+				},
+				green: {
+					success: 'hsl(var(--green-success))',
+					light: 'hsl(var(--green-light))'
+				},
+				red: {
+					urgent: 'hsl(var(--red-urgent))',
+					danger: 'hsl(var(--red-danger))'
+				},
+				blue: {
+					info: 'hsl(var(--blue-info))'
+				},
+				purple: {
+					premium: 'hsl(var(--purple-premium))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
