@@ -2,17 +2,31 @@ import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/home/HeroSection";
 import { RecommendationCard } from "@/components/recommendations/RecommendationCard";
-import { WalletCard } from "@/components/wallet/WalletCard";
 import { PremiumButton } from "@/components/ui/button-variants";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Users, TrendingUp, Shield, Star, CheckCircle, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { useStore } from "@/stores/useStore";
+import { 
+  Star, 
+  Trophy, 
+  Clock, 
+  Shield, 
+  TrendingUp, 
+  Users, 
+  CheckCircle, 
+  ArrowRight, 
+  Zap,
+  Target,
+  Crown,
+  DollarSign
+} from "lucide-react";
 
-// Mock data for homepage
+// Mock data for featured recommendations
 const featuredRecommendations = [
   {
-    id: 1,
+    id: "featured-1",
     title: "Manchester United vs Arsenal - Over 2.5 Goals",
     price: 15.99,
     odds: 1.85,
@@ -24,49 +38,66 @@ const featuredRecommendations = [
     isUrgent: true,
   },
   {
-    id: 2,
+    id: "featured-2", 
     title: "Lakers vs Warriors - Lakers +5.5",
     price: 12.99,
     odds: 1.92,
     confidence: 5,
-    bettingSites: "DraftKings, FanDuel",
+    bettingSites: "DraftKings, FanDuel, PointsBet",
     expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
     maxPurchases: 50,
     currentPurchases: 23,
     isUrgent: false,
   },
+  {
+    id: "featured-3",
+    title: "Chelsea vs Liverpool - Both Teams to Score",
+    price: 18.99,
+    odds: 1.78,
+    confidence: 3,
+    bettingSites: "Unibet, Ladbrokes, Coral",
+    expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+    currentPurchases: 45,
+    isUrgent: false,
+  }
 ];
 
+// Mock testimonials
 const testimonials = [
   {
-    name: "Alex M.",
-    image: "🏆",
-    text: "Made $2,400 profit in my first month! The predictions are incredibly accurate.",
-    profit: "+240%",
+    name: "Rajesh Kumar",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
+    rating: 5,
+    comment: "SportXBet tips helped me win ₹25,000 last month! Their football predictions are incredibly accurate."
   },
   {
-    name: "Sarah K.", 
-    image: "💎",
-    text: "Finally found a reliable source for sports betting tips. Worth every penny!",
-    profit: "+180%",
-  },
-  {
-    name: "Mike R.",
-    image: "🎯", 
-    text: "85% win rate speaks for itself. This platform changed my betting game completely.",
-    profit: "+310%",
-  },
+    name: "Priya Singh",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face",
+    rating: 5,
+    comment: "Best sports betting platform in India. I've doubled my investment in just 3 months!"
+  }
 ];
 
 const Index = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, setAuthModalOpen, recommendations, purchaseRecommendation } = useStore();
   
   const handleGetStarted = () => {
-    // Navigate to dashboard or show auth modal
-    setIsAuthenticated(true);
+    if (user?.isAuthenticated) {
+      window.location.href = "/dashboard";
+    } else {
+      setAuthModalOpen(true);
+    }
   };
 
-  if (isAuthenticated) {
+  const handlePurchase = (id: string) => {
+    if (user?.isAuthenticated) {
+      purchaseRecommendation(id);
+    } else {
+      setAuthModalOpen(true);
+    }
+  };
+
+  if (user?.isAuthenticated) {
     // Redirect to dashboard component
     window.location.href = "/dashboard";
     return null;
@@ -75,9 +106,14 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header
-        isAuthenticated={false}
-        onLoginClick={() => setIsAuthenticated(true)}
+        userBalance={user?.balance || 0}
+        isAuthenticated={user?.isAuthenticated || false}
+        username={user?.username || "Guest"}
+        onLoginClick={() => setAuthModalOpen(true)}
+        onLogoutClick={() => {}}
       />
+      
+      <AuthModal />
 
       {/* Hero Section */}
       <HeroSection onGetStarted={handleGetStarted} />
@@ -90,43 +126,29 @@ const Index = () => {
               🔥 Hot Recommendations
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Current Live Recommendations
+              Featured <span className="gradient-text">Premium Tips</span>
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              See what our professional analysts are recommending right now. 
-              <span className="text-primary font-semibold"> Join to unlock full access.</span>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Check out our most popular recommendations with high success rates. 
+              Join thousands of winning bettors today.
             </p>
           </div>
-
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8">
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {featuredRecommendations.map((rec) => (
-              <div key={rec.id} className="relative">
-                <RecommendationCard
-                  {...rec}
-                  userBalance={0}
-                  onPurchase={() => handleGetStarted()}
-                />
-                {/* Overlay for non-authenticated users */}
-                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Shield className="h-8 w-8 text-primary mx-auto mb-3" />
-                    <h3 className="font-semibold mb-2">Premium Content</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Sign up to view and purchase recommendations
-                    </p>
-                    <PremiumButton variant="gold" onClick={handleGetStarted}>
-                      Get Access
-                    </PremiumButton>
-                  </div>
-                </div>
-              </div>
+              <RecommendationCard
+                key={rec.id}
+                {...rec}
+                userBalance={user?.balance || 0}
+                onPurchase={handlePurchase}
+              />
             ))}
           </div>
-
+          
           <div className="text-center">
-            <PremiumButton variant="gold" size="lg" onClick={handleGetStarted}>
-              <Trophy className="h-5 w-5" />
+            <PremiumButton variant="premium" size="lg" onClick={handleGetStarted}>
               View All Recommendations
+              <ArrowRight className="h-4 w-4" />
             </PremiumButton>
           </div>
         </div>
@@ -137,138 +159,196 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Join Thousands of Winning Bettors
+              Trusted by <span className="gradient-text">10,000+</span> Bettors
             </h2>
-            <p className="text-xl text-muted-foreground">
-              Our community is crushing the sportsbooks every day
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              See what our community is saying about SportXBet premium tips
             </p>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+          
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
             {testimonials.map((testimonial, index) => (
               <Card key={index} className="gradient-card shadow-card">
                 <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="text-2xl">{testimonial.image}</div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <img 
+                      src={testimonial.avatar} 
+                      alt={testimonial.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
                     <div>
-                      <div className="font-semibold">{testimonial.name}</div>
-                      <Badge variant="default" className="text-xs">
-                        {testimonial.profit} ROI
-                      </Badge>
+                      <h4 className="font-semibold">{testimonial.name}</h4>
+                      <div className="flex items-center gap-1">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <p className="text-muted-foreground italic">"{testimonial.text}"</p>
-                  <div className="flex mt-4">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                    ))}
-                  </div>
+                  <p className="text-muted-foreground italic">"{testimonial.comment}"</p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {/* Trust indicators */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-success mb-2">1000+</div>
-              <div className="text-sm text-muted-foreground">Active Members</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">85%</div>
-              <div className="text-sm text-muted-foreground">Win Rate</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-info mb-2">$50K+</div>
-              <div className="text-sm text-muted-foreground">Member Profits</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-premium mb-2">24/7</div>
-              <div className="text-sm text-muted-foreground">Support</div>
-            </div>
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <div className="text-3xl font-bold text-primary mb-2">10,000+</div>
+                <div className="text-sm text-muted-foreground">Active Users</div>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <div className="text-3xl font-bold text-green-success mb-2">78%</div>
+                <div className="text-sm text-muted-foreground">Win Rate</div>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <div className="text-3xl font-bold text-primary mb-2">₹5M+</div>
+                <div className="text-sm text-muted-foreground">Winnings Paid</div>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-6">
+                <div className="text-3xl font-bold text-green-success mb-2">24/7</div>
+                <div className="text-sm text-muted-foreground">Support</div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* How it works */}
+      {/* How It Works */}
       <section className="py-20 bg-card/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              How It Works
+              How SportXBet <span className="gradient-text">Works</span>
             </h2>
-            <p className="text-xl text-muted-foreground">
-              Start winning in 3 simple steps
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Get started with premium sports betting tips in just 3 simple steps
             </p>
           </div>
-
+          
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full gradient-gold mb-6 text-2xl font-bold text-primary-foreground">
-                1
-              </div>
-              <h3 className="text-xl font-semibold mb-4">Sign Up & Fund</h3>
-              <p className="text-muted-foreground">
-                Create your account and add funds using crypto, stars, or other payment methods
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full gradient-success mb-6 text-2xl font-bold text-white">
-                2
-              </div>
-              <h3 className="text-xl font-semibold mb-4">Browse & Purchase</h3>
-              <p className="text-muted-foreground">
-                Choose from our premium recommendations with detailed analysis and confidence ratings
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-info mb-6 text-2xl font-bold text-white">
-                3
-              </div>
-              <h3 className="text-xl font-semibold mb-4">Place Bets & Win</h3>
-              <p className="text-muted-foreground">
-                Use our recommendations on your favorite sportsbooks and start winning consistently
-              </p>
-            </div>
+            <Card className="text-center gradient-card shadow-card">
+              <CardContent className="p-8">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full gradient-gold flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-xl">1</span>
+                </div>
+                <h3 className="text-xl font-bold mb-4">Sign Up & Add Funds</h3>
+                <p className="text-muted-foreground">
+                  Create your account and add funds to your wallet securely. Get ₹25 welcome bonus!
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center gradient-card shadow-card">
+              <CardContent className="p-8">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full gradient-success flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-xl">2</span>
+                </div>
+                <h3 className="text-xl font-bold mb-4">Browse Premium Tips</h3>
+                <p className="text-muted-foreground">
+                  Explore our curated recommendations from professional analysts with proven track records.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center gradient-card shadow-card">
+              <CardContent className="p-8">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full gradient-urgent flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-xl">3</span>
+                </div>
+                <h3 className="text-xl font-bold mb-4">Place Bets & Win</h3>
+                <p className="text-muted-foreground">
+                  Follow our expert analysis and place your bets with confidence. Track your success!
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* Features */}
       <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Why Choose <span className="gradient-text">SportXBet</span>?
+            </h2>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="gradient-card shadow-card">
+              <CardContent className="p-6">
+                <Target className="h-12 w-12 text-primary mb-4" />
+                <h3 className="text-lg font-bold mb-2">Expert Analysis</h3>
+                <p className="text-sm text-muted-foreground">
+                  Professional analysts with years of experience in sports betting
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="gradient-card shadow-card">
+              <CardContent className="p-6">
+                <Shield className="h-12 w-12 text-green-success mb-4" />
+                <h3 className="text-lg font-bold mb-2">Secure Platform</h3>
+                <p className="text-sm text-muted-foreground">
+                  Bank-grade security with encrypted transactions and data protection
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="gradient-card shadow-card">
+              <CardContent className="p-6">
+                <Clock className="h-12 w-12 text-primary mb-4" />
+                <h3 className="text-lg font-bold mb-2">Real-time Updates</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get instant notifications for new tips and live match updates
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="gradient-card shadow-card">
+              <CardContent className="p-6">
+                <TrendingUp className="h-12 w-12 text-green-success mb-4" />
+                <h3 className="text-lg font-bold mb-2">High Success Rate</h3>
+                <p className="text-sm text-muted-foreground">
+                  Proven track record with 78% average success rate across all sports
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-20 bg-card/50">
         <div className="container mx-auto px-4 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Ready to Start Winning?
+          <div className="max-w-2xl mx-auto">
+            <Crown className="h-16 w-16 text-primary mx-auto mb-6" />
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Ready to Start <span className="gradient-text">Winning</span>?
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join our exclusive community of successful sports bettors today
+              Join SportXBet today and get access to premium sports betting tips from expert analysts. 
+              Your winning streak starts here!
             </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <PremiumButton variant="gold" size="xl" onClick={handleGetStarted}>
-                <Trophy className="h-5 w-5" />
+                <Zap className="h-5 w-5" />
                 Get Started Now
               </PremiumButton>
-              <PremiumButton variant="glass" size="xl">
-                <DollarSign className="h-5 w-5" />
-                View Pricing
-              </PremiumButton>
+              <Button variant="outline" size="lg">
+                Learn More
+              </Button>
             </div>
-
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <CheckCircle className="h-4 w-4 text-green-success" />
-                No subscription fees
-              </div>
-              <div className="flex items-center gap-1">
-                <CheckCircle className="h-4 w-4 text-green-success" />
-                Pay per recommendation
-              </div>
-              <div className="flex items-center gap-1">
-                <CheckCircle className="h-4 w-4 text-green-success" />
-                Transparent results
-              </div>
+            <div className="mt-6 text-sm text-muted-foreground">
+              ✨ Get ₹25 welcome bonus • No hidden fees • Cancel anytime
             </div>
           </div>
         </div>
@@ -281,10 +361,10 @@ const Index = () => {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Trophy className="h-6 w-6 text-primary" />
-                <span className="font-bold text-lg">SportsPro</span>
+                <span className="font-bold text-lg">SportXBet</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Premium sports betting recommendations from professional analysts.
+                Premium sports betting recommendations from professional analysts at SportXBet.
               </p>
             </div>
             <div>
@@ -296,24 +376,26 @@ const Index = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="font-semibold mb-4">Sports</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>Help center</li>
-                <li>Contact us</li>
-                <li>Terms of service</li>
+                <li>Football</li>
+                <li>Basketball</li>
+                <li>Tennis</li>
+                <li>Cricket</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Community</h4>
+              <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>Telegram channel</li>
-                <li>Discord server</li>
-                <li>Twitter</li>
+                <li>Help Center</li>
+                <li>Contact Us</li>
+                <li>Terms of Service</li>
+                <li>Privacy Policy</li>
               </ul>
             </div>
           </div>
           <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 SportsPro. All rights reserved. Bet responsibly.</p>
+            <p>&copy; 2024 SportXBet. All rights reserved. Bet responsibly.</p>
           </div>
         </div>
       </footer>

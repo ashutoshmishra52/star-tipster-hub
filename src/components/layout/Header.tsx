@@ -34,8 +34,8 @@ export function Header({
               <Trophy className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">SportsPro</h1>
-              <p className="text-xs text-muted-foreground">Premium Recommendations</p>
+              <h1 className="text-xl font-bold text-foreground">SportXBet</h1>
+              <p className="text-xs text-muted-foreground">Premium Tips</p>
             </div>
           </div>
 
@@ -59,9 +59,9 @@ export function Header({
                 {/* Balance Display */}
                 <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50">
                   <Wallet className="h-4 w-4 text-green-success" />
-                  <span className="text-sm font-medium text-green-success">
-                    ${userBalance.toFixed(2)}
-                  </span>
+                      <span className="text-sm font-medium text-green-success">
+                        ₹{userBalance.toFixed(2)}
+                      </span>
                 </div>
 
                 {/* User Menu */}
@@ -75,7 +75,7 @@ export function Header({
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem>
                       <Wallet className="mr-2 h-4 w-4" />
-                      <span>Balance: ${userBalance.toFixed(2)}</span>
+                      <span>Balance: ₹{userBalance.toFixed(2)}</span>
                       <Badge variant="secondary" className="ml-auto">
                         {userBalance > 0 ? "Active" : "Empty"}
                       </Badge>

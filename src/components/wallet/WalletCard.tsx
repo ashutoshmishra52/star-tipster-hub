@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface Transaction {
-  type: 'deposit' | 'purchase';
+  id: string;
+  type: 'deposit' | 'purchase' | 'refund';
   amount: number;
   description: string;
   date: string;
+  status?: 'completed' | 'pending' | 'failed';
 }
 
 interface WalletCardProps {

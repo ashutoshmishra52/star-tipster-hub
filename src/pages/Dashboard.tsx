@@ -6,129 +6,107 @@ import { PremiumButton } from "@/components/ui/button-variants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trophy, Clock, ShoppingBag, BarChart3, Star, Target } from "lucide-react";
-
-// Mock data - replace with actual API calls
-const mockUser = {
-  id: 1,
-  username: "sportspro_user",
-  balance: 45.50,
-  isAuthenticated: true,
-};
-
-const mockRecommendations = [
-  {
-    id: 1,
-    title: "Manchester United vs Arsenal - Over 2.5 Goals",
-    price: 15.99,
-    odds: 1.85,
-    confidence: 4,
-    bettingSites: "Bet365, William Hill, Betfair",
-    expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours
-    maxPurchases: 100,
-    currentPurchases: 67,
-    isUrgent: true,
-  },
-  {
-    id: 2,
-    title: "Lakers vs Warriors - Lakers +5.5",
-    price: 12.99,
-    odds: 1.92,
-    confidence: 5,
-    bettingSites: "DraftKings, FanDuel, PointsBet",
-    expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(), // 6 hours
-    maxPurchases: 50,
-    currentPurchases: 23,
-    isUrgent: false,
-  },
-  {
-    id: 3,
-    title: "Chelsea vs Liverpool - Both Teams to Score",
-    price: 18.99,
-    odds: 1.78,
-    confidence: 3,
-    bettingSites: "Unibet, Ladbrokes, Coral",
-    expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(), // 12 hours
-    currentPurchases: 45,
-    isUrgent: false,
-  },
-];
-
-const mockTransactions = [
-  {
-    type: 'deposit' as const,
-    amount: 50.00,
-    description: 'Wallet Top-up',
-    date: '2024-01-15 14:30',
-  },
-  {
-    type: 'purchase' as const,
-    amount: 15.99,
-    description: 'Man Utd vs Arsenal tip',
-    date: '2024-01-15 12:15',
-  },
-  {
-    type: 'purchase' as const,
-    amount: 12.99,
-    description: 'Lakers vs Warriors tip',
-    date: '2024-01-14 20:45',
-  },
-];
-
-const mockPurchases = [
-  {
-    id: 1,
-    title: "Real Madrid vs Barcelona - Real Madrid Win",
-    price: 19.99,
-    odds: 2.15,
-    result: "hit",
-    purchaseDate: "2024-01-14 15:30",
-    content: "Exclusive analysis revealed...",
-  },
-  {
-    id: 2,
-    title: "Patriots vs Bills - Under 45.5 Points",
-    price: 14.99,
-    odds: 1.88,
-    result: "miss",
-    purchaseDate: "2024-01-13 18:20",
-    content: "Weather conditions analysis...",
-  },
-];
+import { AuthModal } from "@/components/auth/AuthModal";
+import { AdminPanel } from "@/components/admin/AdminPanel";
+import { DepositModal } from "@/components/deposit/DepositModal";
+import { useStore } from "@/stores/useStore";
+import { Trophy, Clock, ShoppingBag, BarChart3, Star, Target, Settings } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
-  const [activeRecommendations, setActiveRecommendations] = useState(mockRecommendations);
-  const [user, setUser] = useState(mockUser);
+  const { 
+    user, 
+    recommendations, 
+    purchases, 
+    transactions,
+    purchaseRecommendation,
+    logout,
+    setAdminPanelOpen,
+    setRecommendations
+  } = useStore();
+  
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+  const { toast } = useToast();
 
-  const handlePurchase = (id: number) => {
-    const recommendation = activeRecommendations.find(r => r.id === id);
-    if (!recommendation) return;
+  // Initialize with sample data if empty
+  useEffect(() => {
+    if (recommendations.length === 0) {
+      const sampleRecommendations = [
+        {
+          id: '1',
+          title: "Manchester United vs Arsenal - Over 2.5 Goals",
+          price: 15.99,
+          odds: 1.85,
+          confidence: 4,
+          bettingSites: "Bet365, William Hill, Betfair",
+          expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+          maxPurchases: 100,
+          currentPurchases: 67,
+          isUrgent: true,
+          category: 'football' as const,
+          status: 'active' as const,
+          content: "Manchester United's attacking form has been exceptional at home, while Arsenal's defense shows vulnerabilities against high-pressing teams. Both teams have scored in 8 of their last 10 meetings."
+        },
+        {
+          id: '2',
+          title: "Lakers vs Warriors - Lakers +5.5",
+          price: 12.99,
+          odds: 1.92,
+          confidence: 5,
+          bettingSites: "DraftKings, FanDuel, PointsBet",
+          expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+          maxPurchases: 50,
+          currentPurchases: 23,
+          isUrgent: false,
+          category: 'basketball' as const,
+          status: 'active' as const,
+          content: "Lakers have covered the spread in 4 of their last 5 games against Golden State. Their defensive improvements under the new coaching system give them excellent value at +5.5."
+        },
+        {
+          id: '3',
+          title: "Chelsea vs Liverpool - Both Teams to Score",
+          price: 18.99,
+          odds: 1.78,
+          confidence: 3,
+          bettingSites: "Unibet, Ladbrokes, Coral",
+          expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+          currentPurchases: 45,
+          isUrgent: false,
+          category: 'football' as const,
+          status: 'active' as const,
+          content: "Both teams have strong attacking options and have struggled defensively in recent matches. Statistical analysis shows 85% probability of both teams scoring."
+        }
+      ];
+      setRecommendations(sampleRecommendations);
+    }
+  }, [recommendations.length, setRecommendations]);
 
-    if (user.balance >= recommendation.price) {
-      // Simulate purchase
-      setUser(prev => ({
-        ...prev,
-        balance: prev.balance - recommendation.price
-      }));
-      
-      // Update purchases count
-      setActiveRecommendations(prev => 
-        prev.map(r => 
-          r.id === id ? { ...r, currentPurchases: r.currentPurchases + 1 } : r
-        )
-      );
-      
-      alert(`Successfully purchased: ${recommendation.title}`);
-    } else {
-      alert("Insufficient balance!");
+  if (!user?.isAuthenticated) {
+    window.location.href = "/";
+    return null;
+  }
+
+  const handlePurchase = (id: string) => {
+    purchaseRecommendation(id);
+    const recommendation = recommendations.find(r => r.id === id);
+    if (recommendation) {
+      toast({
+        title: "Purchase Successful!",
+        description: `You've purchased: ${recommendation.title}`,
+      });
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/";
+  };
+
   const stats = {
-    totalPurchases: mockPurchases.length,
-    successRate: Math.round((mockPurchases.filter(p => p.result === "hit").length / mockPurchases.length) * 100),
-    totalSpent: mockPurchases.reduce((sum, p) => sum + p.price, 0),
-    activeRecommendations: activeRecommendations.length,
+    totalPurchases: purchases.length,
+    successRate: purchases.length > 0 ? Math.round((purchases.filter(p => p.result === "hit").length / purchases.length) * 100) : 0,
+    totalSpent: purchases.reduce((sum, p) => sum + p.price, 0),
+    activeRecommendations: recommendations.filter(r => r.status === 'active').length,
   };
 
   return (
@@ -137,9 +115,23 @@ export default function Dashboard() {
         userBalance={user.balance}
         isAuthenticated={user.isAuthenticated}
         username={user.username}
-        onLoginClick={() => console.log("Login clicked")}
-        onLogoutClick={() => console.log("Logout clicked")}
+        onLoginClick={() => {}}
+        onLogoutClick={handleLogout}
       />
+
+      {/* Admin Button */}
+      {user.isAdmin && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <PremiumButton 
+            variant="premium" 
+            onClick={() => setAdminPanelOpen(true)}
+            className="shadow-lg"
+          >
+            <Settings className="h-4 w-4" />
+            Admin Panel
+          </PremiumButton>
+        </div>
+      )}
 
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
@@ -180,7 +172,7 @@ export default function Dashboard() {
                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Total Spent</span>
               </div>
-              <div className="text-2xl font-bold">${stats.totalSpent.toFixed(2)}</div>
+              <div className="text-2xl font-bold">₹{stats.totalSpent.toFixed(2)}</div>
             </CardContent>
           </Card>
           
@@ -200,8 +192,8 @@ export default function Dashboard() {
           <div className="lg:col-span-1">
             <WalletCard
               balance={user.balance}
-              recentTransactions={mockTransactions}
-              onDeposit={() => console.log("Deposit clicked")}
+              recentTransactions={transactions.slice(-3)}
+              onDeposit={() => setIsDepositModalOpen(true)}
               onViewHistory={() => console.log("View history clicked")}
             />
           </div>
@@ -222,12 +214,12 @@ export default function Dashboard() {
                     Live Recommendations
                   </h2>
                   <Badge variant="secondary" className="px-3 py-1">
-                    {activeRecommendations.length} Available
+                    {recommendations.filter(r => r.status === 'active').length} Available
                   </Badge>
                 </div>
                 
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {activeRecommendations.map((rec) => (
+                  {recommendations.filter(r => r.status === 'active').map((rec) => (
                     <RecommendationCard
                       key={rec.id}
                       {...rec}
@@ -236,24 +228,32 @@ export default function Dashboard() {
                     />
                   ))}
                 </div>
+                
+                {recommendations.filter(r => r.status === 'active').length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Trophy className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                    <p>No active recommendations available at the moment.</p>
+                    <p className="text-sm">Check back soon for new premium tips!</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="purchases" className="space-y-6">
                 <h2 className="text-2xl font-bold">My Purchases</h2>
                 <div className="space-y-4">
-                  {mockPurchases.map((purchase) => (
+                  {purchases.map((purchase) => (
                     <Card key={purchase.id}>
                       <CardContent className="p-6">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="font-semibold">{purchase.title}</h3>
-                          <Badge variant={purchase.result === "hit" ? "default" : "destructive"}>
-                            {purchase.result === "hit" ? "✅ Hit" : "❌ Miss"}
+                          <Badge variant={purchase.result === "hit" ? "default" : purchase.result === "miss" ? "destructive" : "secondary"}>
+                            {purchase.result === "hit" ? "✅ Hit" : purchase.result === "miss" ? "❌ Miss" : "⏳ Pending"}
                           </Badge>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                           <div>
                             <span className="text-muted-foreground">Price: </span>
-                            <span className="font-medium">${purchase.price}</span>
+                            <span className="font-medium">₹{purchase.price}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Odds: </span>
@@ -261,7 +261,7 @@ export default function Dashboard() {
                           </div>
                           <div>
                             <span className="text-muted-foreground">Date: </span>
-                            <span className="font-medium">{purchase.purchaseDate}</span>
+                            <span className="font-medium">{new Date(purchase.purchaseDate).toLocaleDateString()}</span>
                           </div>
                           <div className="md:text-right">
                             <PremiumButton variant="glass" size="sm">
@@ -269,9 +269,20 @@ export default function Dashboard() {
                             </PremiumButton>
                           </div>
                         </div>
+                        <div className="p-4 bg-accent/10 rounded-lg">
+                          <p className="text-sm">{purchase.content}</p>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
+                  
+                  {purchases.length === 0 && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <ShoppingBag className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <p>No purchases yet.</p>
+                      <p className="text-sm">Browse our recommendations to get started!</p>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
 
@@ -286,6 +297,13 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      <AuthModal />
+      <AdminPanel />
+      <DepositModal 
+        isOpen={isDepositModalOpen} 
+        onClose={() => setIsDepositModalOpen(false)} 
+      />
     </div>
   );
 }
