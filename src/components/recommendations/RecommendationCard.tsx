@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress";
 
 interface RecommendationCardProps {
-  id: number;
+  id: string;
   title: string;
   price: number;
   odds: number;
@@ -15,7 +15,7 @@ interface RecommendationCardProps {
   maxPurchases?: number;
   currentPurchases: number;
   isUrgent?: boolean;
-  onPurchase?: (id: number) => void;
+  onPurchase?: (id: string) => void;
   userBalance?: number;
 }
 
@@ -73,7 +73,7 @@ export function RecommendationCard({
           </div>
           
           <div className="text-right">
-            <div className="text-2xl font-bold text-green-success">${price}</div>
+            <div className="text-2xl font-bold text-green-success">₹{price}</div>
             {isUrgent && (
               <Badge variant="destructive" className="text-xs">
                 <AlertTriangle className="h-3 w-3 mr-1" />
@@ -124,14 +124,14 @@ export function RecommendationCard({
           onClick={() => onPurchase?.(id)}
         >
           <ShoppingCart className="h-4 w-4" />
-          {!isAvailable ? "Sold Out" : 
-           !canAfford ? `Need $${(price - userBalance).toFixed(2)} More` : 
-           `Purchase - $${price}`}
+           {!isAvailable ? "Sold Out" : 
+            !canAfford ? `Need ₹${(price - userBalance).toFixed(2)} More` : 
+            `Purchase - ₹${price}`}
         </PremiumButton>
         
         {!canAfford && isAvailable && (
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            Your balance: ${userBalance.toFixed(2)}
+            Your balance: ₹{userBalance.toFixed(2)}
           </p>
         )}
       </CardFooter>

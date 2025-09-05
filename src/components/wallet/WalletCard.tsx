@@ -41,7 +41,7 @@ export function WalletCard({
         <div className="text-center p-6 rounded-lg bg-background/50">
           <div className="text-sm text-muted-foreground mb-2">Available Balance</div>
           <div className="text-4xl font-bold text-green-success mb-4">
-            ${balance.toFixed(2)}
+            ₹{balance.toFixed(2)}
           </div>
           <Badge variant={balance > 0 ? "default" : "secondary"} className="px-4 py-1">
             {balance > 0 ? "Active Account" : "Fund Required"}
@@ -92,7 +92,7 @@ export function WalletCard({
                   <div className={`font-medium ${
                     transaction.type === 'deposit' ? 'text-green-success' : 'text-red-urgent'
                   }`}>
-                    {transaction.type === 'deposit' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                    {transaction.type === 'deposit' ? '+' : '-'}₹{transaction.amount.toFixed(2)}
                   </div>
                 </div>
               ))}

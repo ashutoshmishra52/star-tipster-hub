@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useStore } from "@/stores/useStore";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Star, 
   Trophy, 
@@ -80,6 +81,7 @@ const testimonials = [
 
 const Index = () => {
   const { user, setAuthModalOpen, recommendations, purchaseRecommendation } = useStore();
+  useAuth(); // Initialize auth listener
   
   const handleGetStarted = () => {
     if (user?.isAuthenticated) {

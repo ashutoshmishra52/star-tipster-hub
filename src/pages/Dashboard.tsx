@@ -10,6 +10,7 @@ import { AuthModal } from "@/components/auth/AuthModal";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { DepositModal } from "@/components/deposit/DepositModal";
 import { useStore } from "@/stores/useStore";
+import { useAuth } from "@/hooks/useAuth";
 import { Trophy, Clock, ShoppingBag, BarChart3, Star, Target, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,6 +26,7 @@ export default function Dashboard() {
     setRecommendations
   } = useStore();
   
+  const { signOut } = useAuth();
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const { toast } = useToast();
 
@@ -97,7 +99,8 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     logout();
     window.location.href = "/";
   };
