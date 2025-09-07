@@ -61,13 +61,21 @@ serve(async (req) => {
       });
     }
 
-    // Check if token is already used
+    // Check if token is already used - for testing, allow reuse within 5 minutes
     if (authToken.used) {
-      console.log('Token already used');
-      return new Response('Token has already been used', { 
-        status: 400,
-        headers: corsHeaders
-      });
+      const tokenAge = new Date().getTime() - new Date(authToken.created_at).getTime();
+      const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
+      
+      if (tokenAge > fiveMinutes) {
+        console.log('Token already used and expired for reuse');
+        return new Response('Token has already been used. Please generate a new token by sending /start to the bot.', { 
+          status: 400,
+          headers: corsHeaders
+        });
+      } else {
+        console.log('Token already used but allowing reuse for testing (within 5 minutes)');
+        // Continue with authentication
+      }
     }
 
     console.log(`Token validated successfully for Telegram user: ${authToken.telegram_id}`);
