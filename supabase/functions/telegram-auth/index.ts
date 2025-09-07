@@ -95,7 +95,7 @@ serve(async (req) => {
         .eq('token', token);
         
       // User already connected, redirect to login
-      const redirectUrl = `https://axqztpuqozxooqknwtsk.lovable.app/?telegram_auth=existing&user_id=${existingProfile.user_id}`;
+      const redirectUrl = `${Deno.env.get('SITE_URL') || 'https://axqztpuqozxooqknwtsk.lovable.app'}/?telegram_auth=existing&user_id=${existingProfile.user_id}`;
       return new Response(null, {
         status: 302,
         headers: {
@@ -169,7 +169,7 @@ serve(async (req) => {
       .eq('token', token);
 
     // Redirect to app with authentication data
-    const redirectUrl = `https://axqztpuqozxooqknwtsk.lovable.app/?telegram_auth=success&session=${encodeURIComponent(sessionData.properties.action_link)}`;
+    const redirectUrl = `${Deno.env.get('SITE_URL') || 'https://axqztpuqozxooqknwtsk.lovable.app'}/?telegram_auth=success&session=${encodeURIComponent(sessionData.properties.action_link)}`;
     
     return new Response(null, {
       status: 302,
