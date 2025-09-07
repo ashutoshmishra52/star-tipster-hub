@@ -34,38 +34,37 @@ serve(async (req) => {
     const currentTime = new Date().toISOString();
     console.log(`Current time: ${currentTime}`);
 
-    // Verify token and get Telegram user data
+    // First, let's see what tokens exist for debugging
+    const { data: allTokens } = await supabase
+      .from('telegram_auth_tokens')
+      .select('*')
+      .eq('token', token);
+    
+    console.log(`All tokens with this value:`, allTokens);
+
+    // Verify token and get Telegram user data - temporarily remove used=false condition for debugging
     const { data: authToken, error: tokenError } = await supabase
       .from('telegram_auth_tokens')
       .select('*')
       .eq('token', token)
-      .eq('used', false)
       .gt('expires_at', currentTime)
-      .single();
+      .maybeSingle();
 
     console.log(`Token lookup result:`, { authToken, tokenError });
 
-    if (tokenError || !authToken) {
-      // Get more details about why token failed
-      const { data: tokenDetails } = await supabase
-        .from('telegram_auth_tokens')
-        .select('*')
-        .eq('token', token)
-        .single();
-      
-      console.log(`Token details for debugging:`, tokenDetails);
-      
-      if (tokenDetails) {
-        console.log(`Token exists but validation failed:`);
-        console.log(`- Used: ${tokenDetails.used}`);
-        console.log(`- Expires at: ${tokenDetails.expires_at}`);
-        console.log(`- Current time: ${currentTime}`);
-        console.log(`- Is expired: ${new Date(tokenDetails.expires_at) <= new Date(currentTime)}`);
-      } else {
-        console.log('Token not found in database');
-      }
-
+    // Check if token exists but is already used
+    if (!authToken) {
+      console.log('No token found or token expired');
       return new Response('Invalid or expired token', { 
+        status: 400,
+        headers: corsHeaders
+      });
+    }
+
+    // Check if token is already used
+    if (authToken.used) {
+      console.log('Token already used');
+      return new Response('Token has already been used', { 
         status: 400,
         headers: corsHeaders
       });
