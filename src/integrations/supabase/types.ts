@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          telegram_first_name: string | null
+          telegram_id: number | null
+          telegram_last_name: string | null
+          telegram_username: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          telegram_first_name?: string | null
+          telegram_id?: number | null
+          telegram_last_name?: string | null
+          telegram_username?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          telegram_first_name?: string | null
+          telegram_id?: number | null
+          telegram_last_name?: string | null
+          telegram_username?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      telegram_auth_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          telegram_first_name: string | null
+          telegram_id: number
+          telegram_last_name: string | null
+          telegram_username: string | null
+          token: string
+          used: boolean
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          telegram_first_name?: string | null
+          telegram_id: number
+          telegram_last_name?: string | null
+          telegram_username?: string | null
+          token: string
+          used?: boolean
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          telegram_first_name?: string | null
+          telegram_id?: number
+          telegram_last_name?: string | null
+          telegram_username?: string | null
+          token?: string
+          used?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
