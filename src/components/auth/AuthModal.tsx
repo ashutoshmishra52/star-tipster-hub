@@ -182,6 +182,17 @@ export function AuthModal() {
               Continue with Google
             </Button>
 
+            <Button 
+              onClick={() => window.open('https://t.me/sportqwebot', '_blank')}
+              variant="outline" 
+              className="w-full h-12 text-base bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/30"
+            >
+              <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 6.728-.896 6.728-.377 2.65-.377 2.65-1.377 2.65-.896 0-1.209-.896-1.209-.896l-2.411-1.828-1.23-.896-2.035-.979c-.308-.154-.64-.358-.64-.715 0-.447.332-.745.64-.896l8.991-3.485c.524-.201.896.045.896.597 0 .169 0 .338-.169.507z"/>
+              </svg>
+              Connect via Telegram Bot
+            </Button>
+
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
@@ -250,6 +261,17 @@ export function AuthModal() {
             >
               <Chrome className="h-5 w-5 mr-2" />
               Sign up with Google
+            </Button>
+
+            <Button 
+              onClick={() => window.open('https://t.me/sportqwebot', '_blank')}
+              variant="outline" 
+              className="w-full h-12 text-base bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/30"
+            >
+              <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 6.728-.896 6.728-.377 2.65-.377 2.65-1.377 2.65-.896 0-1.209-.896-1.209-.896l-2.411-1.828-1.23-.896-2.035-.979c-.308-.154-.64-.358-.64-.715 0-.447.332-.745.64-.896l8.991-3.485c.524-.201.896.045.896.597 0 .169 0 .338-.169.507z"/>
+              </svg>
+              Sign up via Telegram Bot
             </Button>
 
             <div className="relative">
