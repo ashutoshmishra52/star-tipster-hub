@@ -100,9 +100,8 @@ const Index = () => {
   };
 
   if (user?.isAuthenticated) {
-    // Redirect to dashboard component
-    window.location.href = "/dashboard";
-    return null;
+    // Show landing page content for authenticated users too
+    // They can choose to go to dashboard or stay on the home page
   }
 
   return (

@@ -83,10 +83,7 @@ export default function Dashboard() {
     }
   }, [recommendations.length, setRecommendations]);
 
-  if (!user?.isAuthenticated) {
-    window.location.href = "/";
-    return null;
-  }
+  // Auth guard will handle authentication, no need to redirect here
 
   const handlePurchase = (id: string) => {
     purchaseRecommendation(id);

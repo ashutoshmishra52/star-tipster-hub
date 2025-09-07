@@ -100,6 +100,7 @@ export function AuthModal() {
         email: registerForm.email,
         password: registerForm.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             username: registerForm.username,
           }
@@ -146,9 +147,11 @@ export function AuthModal() {
 
       if (error) {
         setError('Google login failed. Please try again.');
+        console.error('Google auth error:', error);
       }
     } catch (err) {
       setError('Google login failed. Please try again.');
+      console.error('Google auth error:', err);
     } finally {
       setIsLoading(false);
     }
