@@ -73,13 +73,7 @@ serve(async (req) => {
 
     console.log(`Token validated successfully for Telegram user: ${authToken.telegram_id}`);
 
-    // Mark token as used
-    await supabase
-      .from('telegram_auth_tokens')
-      .update({ used: true })
-      .eq('token', token);
-
-    // Check if user already exists with this Telegram ID
+    // Check if user already exists with this Telegram ID (don't mark token as used yet)
     const { data: existingProfile } = await supabase
       .from('profiles')
       .select('user_id')
@@ -87,6 +81,12 @@ serve(async (req) => {
       .single();
 
     if (existingProfile) {
+      // Mark token as used only when we successfully process it
+      await supabase
+        .from('telegram_auth_tokens')
+        .update({ used: true })
+        .eq('token', token);
+        
       // User already connected, redirect to login
       const redirectUrl = `https://axqztpuqozxooqknwtsk.lovable.app/?telegram_auth=existing&user_id=${existingProfile.user_id}`;
       return new Response(null, {
@@ -154,6 +154,12 @@ serve(async (req) => {
         headers: corsHeaders
       });
     }
+
+    // Mark token as used only after successful authentication
+    await supabase
+      .from('telegram_auth_tokens')
+      .update({ used: true })
+      .eq('token', token);
 
     // Redirect to app with authentication data
     const redirectUrl = `https://axqztpuqozxooqknwtsk.lovable.app/?telegram_auth=success&session=${encodeURIComponent(sessionData.properties.action_link)}`;
