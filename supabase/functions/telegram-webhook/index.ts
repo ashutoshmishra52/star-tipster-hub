@@ -52,9 +52,10 @@ serve(async (req) => {
     // Handle /start command for authentication
     if (text.startsWith('/start')) {
       const authToken = crypto.randomUUID();
+      console.log(`Generating auth token for Telegram user ${from.id}: ${authToken}`);
       
       // Store temporary authentication token
-      const { error: insertError } = await supabase
+      const { data: insertedToken, error: insertError } = await supabase
         .from('telegram_auth_tokens')
         .insert({
           token: authToken,
@@ -62,7 +63,9 @@ serve(async (req) => {
           telegram_username: from.username,
           telegram_first_name: from.first_name,
           telegram_last_name: from.last_name,
-        });
+        })
+        .select()
+        .single();
 
       if (insertError) {
         console.error('Error storing auth token:', insertError);
@@ -71,6 +74,8 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+
+      console.log(`Token stored successfully. Expires at: ${insertedToken.expires_at}`);
 
       // Send authentication link back to user
       const authUrl = `https://axqztpuqozxooqknwtsk.supabase.co/functions/v1/telegram-auth?token=${authToken}`;

@@ -16,7 +16,10 @@ serve(async (req) => {
     const url = new URL(req.url);
     const token = url.searchParams.get('token');
 
+    console.log(`Received auth request with token: ${token}`);
+
     if (!token) {
+      console.log('No token provided in request');
       return new Response('Invalid authentication token', { 
         status: 400,
         headers: corsHeaders
@@ -28,21 +31,47 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    const currentTime = new Date().toISOString();
+    console.log(`Current time: ${currentTime}`);
+
     // Verify token and get Telegram user data
     const { data: authToken, error: tokenError } = await supabase
       .from('telegram_auth_tokens')
       .select('*')
       .eq('token', token)
       .eq('used', false)
-      .gt('expires_at', new Date().toISOString())
+      .gt('expires_at', currentTime)
       .single();
 
+    console.log(`Token lookup result:`, { authToken, tokenError });
+
     if (tokenError || !authToken) {
+      // Get more details about why token failed
+      const { data: tokenDetails } = await supabase
+        .from('telegram_auth_tokens')
+        .select('*')
+        .eq('token', token)
+        .single();
+      
+      console.log(`Token details for debugging:`, tokenDetails);
+      
+      if (tokenDetails) {
+        console.log(`Token exists but validation failed:`);
+        console.log(`- Used: ${tokenDetails.used}`);
+        console.log(`- Expires at: ${tokenDetails.expires_at}`);
+        console.log(`- Current time: ${currentTime}`);
+        console.log(`- Is expired: ${new Date(tokenDetails.expires_at) <= new Date(currentTime)}`);
+      } else {
+        console.log('Token not found in database');
+      }
+
       return new Response('Invalid or expired token', { 
         status: 400,
         headers: corsHeaders
       });
     }
+
+    console.log(`Token validated successfully for Telegram user: ${authToken.telegram_id}`);
 
     // Mark token as used
     await supabase
